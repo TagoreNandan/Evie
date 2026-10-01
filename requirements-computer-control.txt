@@ -1,0 +1,9 @@
+# Optional macOS computer-control runtime (docs/07_Computer_Control.md Section 14).
+# Only the computer-control worker process (services/computer_control/macos_probe.py) imports these.
+# Pinned to the version validated in Phase 0b (.planning/research/computer-control/EVIDENCE.md).
+# Install:  pip install -r requirements-computer-control.txt
+# Without it the worker fails closed (PYOBJC_UNAVAILABLE, ready=false).
+pyobjc-core==12.2.2; sys_platform == "darwin"
+pyobjc-framework-Cocoa==12.2.2; sys_platform == "darwin"
+pyobjc-framework-ApplicationServices==12.2.2; sys_platform == "darwin"
+pyobjc-framework-Quartz==12.2.2; sys_platform == "darwin"

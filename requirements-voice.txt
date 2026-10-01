@@ -1,0 +1,8 @@
+# Optional local speaker verification (see docs/04_Backend_Schema.md Section 5).
+# Install:  pip install -r requirements-voice.txt
+# Then fetch the pinned model once:  python -m services.speaker_verification download-model
+# SpeechBrain pulls in torch and torchaudio.
+# Note: `pip install .[voice]` / `uv` builds currently fail with setuptools' "Multiple top-level
+# packages discovered in a flat-layout: ['ui', 'services', 'integrations']". That error is
+# pre-existing (it occurs with the pre-voice pyproject.toml too), so use this file instead.
+speechbrain>=1.1.1,<1.2

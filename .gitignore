@@ -1,0 +1,4 @@
+.claude-code-evie
+__pycache__/
+*.pyc
+.pytest_cache/

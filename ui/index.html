@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evie — Dashboard & Security Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon">E</div>
+        <div class="brand-title">
+          <h1>Evie Assistant</h1>
+          <span class="brand-subtitle">Dashboard-First Security & Productivity System</span>
+        </div>
+      </div>
+      <div class="header-status">
+        <div class="status-pill online">
+          <span class="status-dot"></span> System Active
+        </div>
+        <div class="tone-picker">
+          <label for="toneSelect">Tone:</label>
+          <select id="toneSelect" onchange="updateTonePreference(this.value)">
+            <option value="neutral">Neutral</option>
+            <option value="casual">Casual</option>
+            <option value="formal">Formal</option>
+            <option value="humorous">Humorous</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="fetchDashboardState()">Refresh State</button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Layout: Primary Dashboard (Left/Center) + Secondary Chat (Right) -->
+    <main class="main-layout">
+      
+      <!-- Primary Dashboard Surface -->
+      <section class="dashboard-primary">
+        
+        <!-- Overall System Status Card -->
+        <div class="card status-banner-card" id="overallStatusBanner">
+          <div class="banner-main">
+            <div class="status-headline">
+              <span class="status-label">Overall System State:</span>
+              <span class="status-badge badge-good" id="overallStatusBadge">Loading...</span>
+            </div>
+            <div class="score-compact">
+              <div class="score-display">
+                <span class="score-value" id="scoreValue">--</span>
+                <span class="score-max">/ 100</span>
+                <span class="score-grade" id="scoreGrade">--</span>
+              </div>
+              <p class="score-trend" id="scoreTrend">Loading security metrics...</p>
+            </div>
+          </div>
+          <div class="banner-actions">
+            <!-- Security Voice Control Button (Foundation Integration) -->
+            <button class="btn btn-primary mic-btn-inline" id="micBtn" onclick="toggleVoiceListening()" title="Voice Interface">
+              🎤 Security Voice Control
+            </button>
+            <div class="voice-status-pill" id="voiceStatusPill">
+              <span class="voice-dot"></span> <span id="voiceStatusText">Voice Ready</span>
+            </div>
+            <button class="btn btn-outline btn-sm" id="enrollVoiceBtn" onclick="startVoiceEnrollment()" title="Voice verification enrollment">
+              🔐 Enroll Voice
+            </button>
+            <p class="score-trend" id="voiceEnrollNote">
+              Sensitive voice actions need your voice print. Enrolling records a few seconds of your voice on this computer to create it;
+              the recording is discarded and the voice print never leaves this computer.
+            </p>
+
+            <!-- Voice Automation Button (Computer Control Integration) -->
+            <div class="voice-automation-block" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-warning mic-btn-inline" id="automationBtn" title="Computer Control Voice Automation Mode">
+                🎙 Start Voice Automation
+              </button>
+              <div class="voice-status-pill" id="automationStatusPill">
+                <span class="voice-dot" id="automationDot"></span> <span id="automationStatusText">Voice Automation Inactive</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Core Sections Grid -->
+        <div class="dashboard-grid">
+          
+          <!-- 1. Security Section Card -->
+          <div class="card section-card">
+            <div class="card-header">
+              <h3>🛡️ Security Findings</h3>
+              <button class="btn btn-outline btn-xs" onclick="toggleDrawer('findingsDrawer')">
+                View All (<span id="findingsCount">0</span>)
+              </button>
+            </div>
+            <div class="findings-summary-list" id="securitySummaryBox">
+              <div class="summary-metric-row">
+                <span>Open Secrets:</span> <strong id="secOpenSecrets">0</strong>
+              </div>
+              <div class="summary-metric-row">
+                <span>Unacknowledged Breaches:</span> <strong id="secBreaches">0</strong>
+              </div>
+              <div class="summary-metric-row">
+                <span>Public Exposures:</span> <strong id="secExposures">0</strong>
+              </div>
+              <div class="summary-metric-row">
+                <span>2FA Audit Issues:</span> <strong id="secTwoFA">0</strong>
+              </div>
+              <div class="summary-metric-row">
+                <span>Dependency Vulnerabilities:</span> <strong id="secDepAlerts">0</strong>
+              </div>
+            </div>
+            <div class="phishing-notice-box" id="secPhishingNotice">
+              <span class="notice-tag">Notice:</span> Phishing risk scores are based on automated heuristic analysis of email headers and metadata. Risk flags are advisory indicators, not definitive proof of malicious intent.
+            </div>
+          </div>
+
+          <!-- 2. GitHub Section Card -->
+          <div class="card section-card">
+            <div class="card-header">
+              <h3>🐙 GitHub Intelligence</h3>
+              <span class="badge" id="githubRepoCount">0 Repos</span>
+            </div>
+            <div class="metrics-grid-2col">
+              <div class="metric-tile">
+                <span class="metric-number" id="ghOpenPRs">0</span>
+                <span class="metric-label">Open PRs</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-number" id="ghUnreviewedPRs">0</span>
+                <span class="metric-label">Unreviewed PRs</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-number" id="ghSecretFindings">0</span>
+                <span class="metric-label">Leaked Secrets</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-number" id="ghTotalCommits">0</span>
+                <span class="metric-label">Commits Scanned</span>
+              </div>
+            </div>
+            <div class="repo-health-list" id="githubRepoList">
+              <p class="empty-state">No repositories synced yet.</p>
+            </div>
+          </div>
+
+          <!-- 3. Gmail Section Card -->
+          <div class="card section-card">
+            <div class="card-header">
+              <h3>📧 Gmail Intelligence</h3>
+              <span class="badge" id="gmailTotalScanned">0 Scanned</span>
+            </div>
+            <div class="category-breakdown">
+              <span class="category-tag tag-important">Important: <strong id="gmailImportantCount">0</strong></span>
+              <span class="category-tag tag-promotional">Promotional: <strong id="gmailPromoCount">0</strong></span>
+              <span class="category-tag tag-phishing">Phishing Alert: <strong id="gmailPhishCount">0</strong></span>
+            </div>
+            <div class="gmail-details-box" id="gmailDetailsBox">
+              <p class="empty-state">No email metadata fetched yet.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Dashboard Timeline / Recent Activity Card -->
+        <div class="card timeline-card">
+          <div class="card-header">
+            <h3>⏱️ Recent Activity & Event Timeline</h3>
+            <span class="badge-neutral" id="timelineCount">0 Events</span>
+          </div>
+          <div class="timeline-list" id="activityTimeline">
+            <p class="empty-state">No recent system activity recorded.</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Secondary Surface: Conversational Assistant Panel -->
+      <section class="chat-container card">
+        <div class="chat-header">
+          <h2>💬 Conversational Assistant</h2>
+          <div class="chat-actions">
+            <button class="btn btn-outline btn-xs" onclick="triggerBriefing('on_demand')">On-Demand Report</button>
+            <button class="btn btn-outline btn-xs" onclick="toggleDrawer('memoryDrawer')">Memory Recall</button>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="message assistant-message">
+            <div class="message-avatar">E</div>
+            <div class="message-body">
+              <p>Hello! I am <strong>Evie</strong>, your unified security and productivity assistant. View your real-time security state above, or ask me a question below.</p>
+              <div class="quick-prompts">
+                <button class="prompt-chip" onclick="sendPrompt('Generate my security briefing report')">Generate Briefing</button>
+                <button class="prompt-chip" onclick="sendPrompt('Should I enable 2FA on my accounts?')">Security Advice</button>
+                <button class="prompt-chip" onclick="sendPrompt('Sync integrations')">Sync Telemetry</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="chat-input-bar">
+          <input type="text" id="userInput" placeholder="Ask Evie anything or request assistance..." onkeydown="if(event.key === 'Enter') sendUserMessage()">
+          <button class="btn btn-primary send-btn" onclick="sendUserMessage()">Send</button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Drawer: Security Findings & Remediation -->
+    <div class="drawer" id="findingsDrawer">
+      <div class="drawer-content card">
+        <div class="drawer-header">
+          <h2>Security Findings & Remediation</h2>
+          <button class="close-btn" onclick="toggleDrawer('findingsDrawer')">&times;</button>
+        </div>
+        <div class="drawer-body" id="findingsList">
+          <p>Loading security findings...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer: Journal & Memory Search -->
+    <div class="drawer" id="memoryDrawer">
+      <div class="drawer-content card">
+        <div class="drawer-header">
+          <h2>Journal & RAG Memory Search</h2>
+          <button class="close-btn" onclick="toggleDrawer('memoryDrawer')">&times;</button>
+        </div>
+        <div class="drawer-body">
+          <div class="memory-search-form">
+            <input type="text" id="memoryQuery" placeholder="Search memory (e.g. 'what did I work on last week?')">
+            <button class="btn btn-primary" onclick="searchMemory()">Search Recall</button>
+          </div>
+          <div id="memoryResults" class="memory-results"></div>
+          <hr class="divider">
+          <h3>Add Journal Entry</h3>
+          <div class="journal-add-form">
+            <input type="date" id="journalDate">
+            <textarea id="journalContent" placeholder="Enter daily notes or achievements..."></textarea>
+            <button class="btn btn-secondary" onclick="addJournal()">Save Entry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Calendar Proposal Confirmation -->
+    <div class="modal" id="calendarModal">
+      <div class="modal-content card">
+        <div class="modal-header">
+          <h3>⚠️ Calendar Action Confirmation</h3>
+          <button class="close-btn" onclick="closeCalendarModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="confirmation-prompt" id="modalPromptText">Are you sure you want to create this event?</p>
+          <div class="proposal-details-box" id="modalProposalDetails">
+            <!-- Dynamic proposal details -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="confirmCalendarProposal(false)">Cancel Proposal</button>
+          <button class="btn btn-success" onclick="confirmCalendarProposal(true)">Confirm Event Mutation</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/voice.js"></script>
+  <script src="/static/voice_capture.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

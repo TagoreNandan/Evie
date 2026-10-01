@@ -1,0 +1,36 @@
+[project]
+name = "evie"
+version = "1.0.0"
+description = "Personal Security & Productivity Assistant"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "pydantic>=2.0.0",
+    "httpx>=0.24.0",
+    "keyring>=24.0.0",
+    "numpy>=1.24.0",
+    "PyGithub>=1.59.0",
+]
+
+[project.optional-dependencies]
+# Local speaker verification (Protected Area #3). Optional: without it, sensitive voice
+# actions fail closed. Model weights are fetched once, explicitly, with
+# `python -m services.speaker_verification download-model` (pinned revision).
+voice = [
+    "speechbrain>=1.1.1,<1.2",
+]
+
+[tool.pytest.ini_options]
+# Fast suite (default): python -m pytest tests -q
+#   Live tests are deselected; tests/conftest.py blocks the real OS keyring and outbound network.
+# Live suite (explicit, real GitHub/Gmail/OAuth credentials): python -m pytest tests -m live -q
+markers = [
+    "live: explicit live-API test (real GitHub/Gmail/OAuth credentials and network); excluded by default",
+]
+addopts = "-m 'not live'"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
